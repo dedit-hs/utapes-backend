@@ -1,6 +1,10 @@
 <?php
 
+use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProductCategoryController;
 use Illuminate\Support\Facades\Route;
+use League\CommonMark\Extension\SmartPunct\DashParser;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,10 +17,20 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
-Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', function () {
-    return view('dashboard');
-})->name('dashboard');
+// Route::middleware(['auth:sanctum', 'verified', 'admin'])->get('/dashboard', function () {
+//     return view('dashboard');
+// })->name('dashboard');
+
+Route::group(['middleware' => ['auth:sanctum', 'verified']], function(){
+    Route::name('dashboard.')->prefix('dashboard')->group(function(){
+        Route::get('/', [DashboardController::class, 'index'])->name('index');
+
+        Route::middleware(['admin'])->group(function(){
+            Route::resource('category', ProductCategoryController::class);
+        });
+    });
+});
